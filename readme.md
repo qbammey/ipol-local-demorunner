@@ -14,7 +14,7 @@ It has only been tested in a Linux environment, and will not work yet in non-POS
 
 ## Build
 Compile within the project with `cargo build --release`. The executable will be located in `target/release/ipol_local_demorunner`.
-The project can also be compiled directly from github with `cargo build --git https://github.com/qbammey/ipol-local-demorunner
+The project can also be compiled directly from github with `cargo build --git https://github.com/qbammey/ipol-local-demorunner`.
 
 ## Install a demo
 To install a demo, you need a JSON DDL file representing the demo. Your git environment needs to have access to the repository indicated in the DDL.
