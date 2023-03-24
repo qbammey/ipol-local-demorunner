@@ -7,14 +7,6 @@ use std::{env, fs};
 pub fn run(demo_name: &str) {
     let home_path = std::env::home_dir().expect("Impossible to get the home directory");
     let base_path = home_path.join(Path::new(".ipol/reps"));
-    let workdir_path = home_path.join(Path::new(".ipol/workdir"));
-    if workdir_path.exists() {
-        panic!(
-            "please remove workdir path {} before running. For now, only one execution at a time is possible.",
-            workdir_path.to_str().unwrap()
-        )
-    }
-    fs::create_dir(&workdir_path).expect("Error creating workdir path");
     let ddl_path = base_path.join(format!("{demo_name}.json"));
     let ddl_as_str = std::fs::read_to_string(ddl_path).expect("Error reading the DDL.");
     let ddl_parsed: serde_json::Value =
@@ -40,7 +32,7 @@ pub fn run(demo_name: &str) {
             out_folder.to_str().unwrap()
         );
     }
-    //fs::create_dir(out_folder).expect("Error creating output folder");
+    fs::create_dir(out_folder).expect("Error creating output folder");
     let mut n_current_arg = 4;
     let mut n_input = 0;
     for expected_input in expected_inputs.iter() {
@@ -54,7 +46,7 @@ pub fn run(demo_name: &str) {
                 let binding = expected_input["ext"].to_string();
                 let ext = binding.trim_matches('"');
                 let input_store_name = format!("input_0{ext}");
-                let input_store_path = workdir_path.join(input_store_name);
+                let input_store_path = out_folder.join(input_store_name);
                 Command::new("convert")
                     .arg(input_name)
                     .arg(input_store_path.to_str().unwrap())
@@ -80,7 +72,6 @@ pub fn run(demo_name: &str) {
         let value = args[i_arg + 1].as_str();
         let name = "$".to_owned() + name;
         run_command = run_command.replace(name.as_str(), value);
-        //env::set_var(name, value);
     }
 
     // Set default params values where unset
@@ -103,7 +94,6 @@ pub fn run(demo_name: &str) {
         let default = binding.trim_matches('"');
         let binding = &param["id"].to_string();
         let param_name = binding.trim_matches('"');
-        //env::set_var(param_name, default);
         let param_name = ("$".to_owned()+param_name);
         run_command = run_command.replace(param_name.as_str(), default);
     }
@@ -112,7 +102,8 @@ pub fn run(demo_name: &str) {
 
     //Run
     let docker_image_name = "ipol-".to_owned() + demo_name;
-    let arg_v = format!("{}:/workdir/exec", workdir_path.to_str().unwrap());
+    let arg_v = format!("{}:/workdir/exec", std::fs::canonicalize(out_folder).unwrap().to_str().unwrap());
+    println!("{arg_v}");
     Command::new("docker")
         .arg("run")
         .arg("--rm")
@@ -129,10 +120,6 @@ pub fn run(demo_name: &str) {
         .arg(run_command)
         .status()
         .expect("Error running the docker image");
-
-    // Store outputs
-    std::fs::rename(workdir_path, out_folder).expect("Error moving outputs from workdir to output folder.");
-
 
 
 }

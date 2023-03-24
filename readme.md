@@ -35,12 +35,12 @@ The names of the parameters is as defined by the `id` field in the DDL.
 
 All outputs will be stored in the specified output folder, as well as the standard output. The demorunner will fail if the specified output folder already exists.
 
-The demorunner will make use of a temporary workdir in `$HOME/.ipol/workdir/`. The demo will fail if the workdir folder already exists:
-* delete it manually if the demorunner crashes
-* as a consequence of this, parallel instances of the demorunner are not supported yet.
-
-# Which demos can I run?
+## Which demos can I run?
 * Only Docker-based demos are supported.
 * Demos with non-image inputs (video, data, ...) are not supported yet
 * Demos that require a GPU are untested with this project. They will most certainly not work if your environment is not equipped with a GPU.
 * As this is a work in progress, other demos might be unusable for various reasons. Do not hesitate to report error messages.
+
+## Changelog
+* v0.1.0 (alpha) : Execution now happens directly within the output folder, parallel instances are possible.
+* v0.0.0 (alpha) : initial release
